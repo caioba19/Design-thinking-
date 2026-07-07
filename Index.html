@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protótipo — Reporte Unijorge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1E2761;
+    --navy-deep:#141B47;
+    --navy-panel:#27306E;
+    --ice:#CADCFC;
+    --ice-soft:#EEF3FF;
+    --white:#FFFFFF;
+    --ink:#1E2130;
+    --muted:#6B7280;
+    --accent:#F2994A;
+    --accent-deep:#D97C29;
+    --good:#2FAE6E;
+    --radius:26px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(202,220,252,0.10), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(242,153,74,0.08), transparent 40%),
+      var(--navy-deep);
+    font-family:'IBM Plex Sans', sans-serif;
+    color:var(--ink);
+    padding:32px 16px;
+  }
+
+  .stage{
+    display:flex;
+    gap:56px;
+    align-items:center;
+    flex-wrap:wrap;
+    justify-content:center;
+    max-width:980px;
+  }
+
+  .intro{
+    color:var(--ice);
+    max-width:340px;
+  }
+  .intro .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:2.5px;
+    color:var(--accent);
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+  .intro h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:32px;
+    line-height:1.15;
+    color:var(--white);
+    margin:0 0 14px;
+  }
+  .intro p{
+    font-size:14.5px;
+    line-height:1.6;
+    color:var(--ice);
+    margin:0 0 22px;
+  }
+  .intro .steps{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .intro .step-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:13.5px;
+    color:var(--ice);
+    opacity:0.55;
+    transition:opacity .35s ease;
+  }
+  .intro .step-row.active{opacity:1;}
+  .intro .step-row .dot{
+    width:22px;height:22px;border-radius:50%;
+    background:var(--navy-panel);
+    border:1.5px solid rgba(202,220,252,0.35);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;color:var(--ice);
+    flex-shrink:0;
+    transition:all .35s ease;
+  }
+  .intro .step-row.active .dot{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:var(--navy-deep);
+  }
+  .intro .step-row.done .dot{
+    background:var(--good);
+    border-color:var(--good);
+    color:var(--white);
+  }
+
+  /* Phone frame */
+  .phone{
+    width:320px;
+    height:660px;
+    background:var(--navy);
+    border-radius:44px;
+    padding:14px;
+    box-shadow:0 30px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(202,220,252,0.08);
+    position:relative;
+    flex-shrink:0;
+  }
+  .screen{
+    width:100%;
+    height:100%;
+    background:var(--ice-soft);
+    border-radius:30px;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .statusbar{
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink);
+    flex-shrink:0;
+  }
+  .statusbar .icons{display:flex; gap:5px; align-items:center;}
+  .notch{
+    position:absolute;
+    top:14px; left:50%; transform:translateX(-50%);
+    width:90px; height:20px;
+    background:var(--navy);
+    border-radius:12px;
+    z-index:5;
+  }
+
+  .appbar{
+    padding:6px 20px 14px;
+    flex-shrink:0;
+  }
+  .appbar .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:1.5px;
+    color:var(--muted);
+    text-transform:uppercase;
+  }
+  .appbar h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:21px;
+    margin:4px 0 0;
+    color:var(--ink);
+  }
+
+  .panel{
+    flex:1;
+    padding:6px 20px 20px;
+    overflow-y:auto;
+    display:none;
+    flex-direction:column;
+  }
+  .panel.active{display:flex;}
+
+  /* Screen 1: home / scan */
+  .qr-card{
+    background:var(--white);
+    border-radius:18px;
+    padding:22px;
+    text-align:center;
+    margin-top:6px;
+    box-shadow:0 10px 24px rgba(30,39,97,0.10);
+  }
+  .qr-card svg{width:120px;height:120px;}
+  .qr-card p{
+    font-size:12px;
+    color:var(--muted);
+    margin:10px 0 0;
+    line-height:1.5;
+  }
+  .location-pill{
+    margin-top:14px;
+    background:var(--white);
+    border-radius:14px;
+    padding:12px 14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    box-shadow:0 6px 16px rgba(30,39,97,0.06);
+  }
+  .location-pill .pin{
+    width:30px;height:30px;border-radius:50%;
+    background:var(--ice-soft);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .location-pill .txt{font-size:12.5px;}
+  .location-pill .txt b{display:block;font-size:13.5px;}
+  .location-pill .txt span{color:var(--muted);font-size:11.5px;}
+
+  /* Screen 2: category */
+  .cat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:6px;
+  }
+  .cat-btn{
+    background:var(--white);
+    border:1.5px solid transparent;
+    border-radius:16px;
+    padding:16px 12px;
+    text-align:left;
+    cursor:pointer;
+    font-family:'IBM Plex Sans', sans-serif;
+    transition:all .18s ease;
+    box-shadow:0 6px 14px rgba(30,39,97,0.06);
+  }
+  .cat-btn:hover{transform:translateY(-1px);}
+  .cat-btn.selected{
+    border-color:var(--accent);
+    background:#FFF6EE;
+  }
+  .cat-btn .icon{font-size:22px;display:block;margin-bottom:8px;}
+  .cat-btn .name{font-size:13px;font-weight:600;}
+
+  /* Screen 3: description */
+  textarea{
+    width:100%;
+    border:1.5px solid #DCE3F5;
+    border-radius:14px;
+    padding:12px 14px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    resize:none;
+    height:92px;
+    background:var(--white);
+    margin-top:6px;
+  }
+  textarea:focus{outline:none;border-color:var(--accent);}
+  .photo-slot{
+    margin-top:12px;
+    border:1.5px dashed #C4CEE8;
+    border-radius:14px;
+    padding:16px;
+    text-align:center;
+    cursor:pointer;
+    color:var(--muted);
+    font-size:12px;
+    background:rgba(255,255,255,0.5);
+    transition:all .18s ease;
+  }
+  .photo-slot.filled{
+    border-style:solid;
+    border-color:var(--good);
+    background:#EFFAF3;
+    color:var(--good);
+    font-weight:600;
+  }
+  .field-label{
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--muted);
+    font-family:'IBM Plex Mono', monospace;
+    margin:14px 0 4px;
+  }
+
+  .spacer{flex:1;}
+  .cta{
+    background:var(--accent);
+    color:var(--white);
+    border:none;
+    border-radius:14px;
+    padding:14px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+    width:100%;
+    margin-top:14px;
+    transition:transform .12s ease, background .15s ease;
+  }
+  .cta:hover{background:var(--accent-deep);}
+  .cta:active{transform:scale(0.98);}
+  .cta:disabled{background:#D8DEEE;color:#9AA5C4;cursor:not-allowed;}
+  .cta.ghost{
+    background:transparent;
+    color:var(--navy);
+    border:1.5px solid #DCE3F5;
+  }
+  .cta.ghost:hover{background:rgba(30,39,97,0.04);}
+
+  .back-row{
+    display:flex;align-items:center;gap:8px;
+    margin-bottom:2px;
+    cursor:pointer;
+    width:fit-content;
+  }
+  .back-row .arrow{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--white);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 10px rgba(30,39,97,0.08);
+    font-size:13px;
+  }
+  .back-row span{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono', monospace;letter-spacing:0.5px;}
+
+  /* Screen 4: ticket / confirmation */
+  .ticket{
+    background:var(--white);
+    border-radius:18px;
+    margin-top:8px;
+    box-shadow:0 14px 30px rgba(30,39,97,0.12);
+    position:relative;
+    overflow:hidden;
+  }
+  .ticket-top{
+    background:var(--navy);
+    padding:22px 20px 26px;
+    color:var(--white);
+    text-align:center;
+  }
+  .ticket-top .check{
+    width:46px;height:46px;border-radius:50%;
+    background:var(--good);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 10px;
+    font-size:22px;
+  }
+  .ticket-top h3{
+    font-family:'Space Grotesk', sans-serif;
+    margin:0 0 4px;
+    font-size:17px;
+  }
+  .ticket-top p{margin:0;font-size:11.5px;color:var(--ice);}
+  .perforation{
+    height:0;
+    border-top:2px dashed #DCE3F5;
+    position:relative;
+  }
+  .perforation::before, .perforation::after{
+    content:"";
+    position:absolute; top:-9px;
+    width:18px;height:18px;border-radius:50%;
+    background:var(--navy-deep);
+  }
+  .perforation::before{left:-27px;}
+  .perforation::after{right:-27px;}
+  .ticket-body{padding:18px 20px 20px;}
+  .ticket-row{
+    display:flex;justify-content:space-between;
+    font-size:12px;
+    padding:7px 0;
+    border-bottom:1px solid #F0F3FA;
+  }
+  .ticket-row:last-child{border-bottom:none;}
+  .ticket-row .k{color:var(--muted);}
+  .ticket-row .v{font-weight:600;text-align:right;}
+  .protocol{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--accent-deep);
+  }
+  .eta-badge{
+    margin-top:14px;
+    background:var(--ice-soft);
+    border-radius:12px;
+    padding:10px 12px;
+    font-size:11.5px;
+    color:var(--navy);
+    text-align:center;
+  }
+
+  @media (max-width: 720px){
+    .stage{gap:28px;}
+    .intro{order:2; text-align:center;}
+    .intro .steps{align-items:center;}
+    .intro .step-row{justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="intro">
+    <div class="eyebrow">Protótipo · Etapa 4 Design Thinking</div>
+    <h1>Reporte de Problema<br>via QR Code</h1>
+    <p>Simulação do fluxo completo: o aluno escaneia o QR Code fixado na sala, escolhe a categoria, descreve o problema e recebe um protocolo de acompanhamento.</p>
+    <div class="steps" id="stepList">
+      <div class="step-row active" data-step="1"><div class="dot">1</div> Escaneia o QR Code</div>
+      <div class="step-row" data-step="2"><div class="dot">2</div> Escolhe a categoria</div>
+      <div class="step-row" data-step="3"><div class="dot">3</div> Descreve o problema</div>
+      <div class="step-row" data-step="4"><div class="dot">4</div> Recebe o protocolo</div>
+    </div>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="statusbar">
+        <span id="clock">09:41</span>
+        <div class="icons">▂▄▆ 📶 🔋</div>
+      </div>
+
+      <!-- SCREEN 1: SCAN -->
+      <div class="panel active" id="p1">
+        <div class="appbar">
+          <div class="label">Unijorge · Reporte</div>
+          <h2>Escaneie o QR Code</h2>
+        </div>
+        <div class="qr-card">
+          <svg viewBox="0 0 29 29" xmlns="http://www.w3.org/2000/svg" fill="#1E2761">
+            <rect width="29" height="29" fill="white"/>
+            <path d="M0 0h7v7h-7z M9 0h1v1h-1z M11 0h2v1h-2z M15 0h1v3h-1z M17 0h1v1h-1z M22 0h7v7h-7z
+            M1 1h5v5h-5z M23 1h5v5h-5z
+            M2 2h3v3h-3z M24 2h3v3h-3z
+            M9 2h2v2h-2z M13 2h1v1h-1z
+            M17 3h2v1h-2z
+            M9 4h1v3h-1z M11 4h1v2h-1z M13 4h1v1h-1z M16 4h1v3h-1z M18 4h2v1h-2z
+            M0 9h1v2h-1z M2 9h2v1h-2z M5 9h2v2h-2z M9 9h3v1h-3z M13 9h2v3h-2z M16 9h1v2h-1z M19 9h1v1h-1z M21 9h1v3h-1z M23 9h2v1h-2z M26 9h3v2h-3z
+            M4 10h1v3h-1z M8 10h1v4h-1z M11 10h1v1h-1z M18 10h1v3h-1z M22 10h1v2h-1z M24 10h2v1h-2z
+            M0 12h2v1h-2z M6 12h2v1h-2z M9 12h2v1h-2z M12 12h1v2h-1z M15 12h1v3h-1z M19 12h2v2h-2z M25 12h1v3h-1z M27 12h2v2h-2z
+            M2 13h1v3h-1z M5 13h1v2h-1z M10 13h1v3h-1z M17 13h1v1h-1z M21 13h2v1h-2z M24 13h1v1h-1z
+            M0 15h1v1h-1z M3 15h2v1h-2z M6 15h1v3h-1z M8 15h2v1h-2z M13 15h1v2h-1z M16 15h1v2h-1z M18 15h1v3h-1z M20 15h1v2h-1z M23 15h2v3h-2z M26 15h1v2h-1z M28 15h1v3h-1z
+            M0 17h2v2h-2z M4 17h1v1h-1z M9 17h1v3h-1z M11 17h2v1h-2z M14 17h1v2h-1z M17 17h1v3h-1z M21 17h1v2h-1z M25 17h1v3h-1z
+            M3 18h1v3h-1z M7 18h1v2h-1z M12 18h1v3h-1z M19 18h1v1h-1z M27 18h1v1h-1z
+            M0 20h1v1h-1z M5 20h1v2h-1z M8 20h1v1h-1z M10 20h1v1h-1z M16 20h1v3h-1z M20 20h2v2h-2z M23 20h1v3h-1z M26 20h2v1h-2z
+            M0 22h7v7h-7z M9 22h1v1h-1z M11 22h2v2h-2z M14 22h1v3h-1z M18 22h1v1h-1z M22 22h7v7h-7z
+            M1 23h5v5h-5z M23 23h5v5h-5z
+            M2 24h3v3h-3z M24 24h3v3h-3z
+            M9 24h1v1h-1z M16 24h2v1h-2z M19 24h1v2h-1z M9 26h2v1h-2z M12 26h2v1h-2z M15 26h1v2h-1z M17 26h1v2h-1z"/>
+          </svg>
+          <p>QR Code fixado na entrada da sala 204 — Bloco B</p>
+        </div>
+        <div class="location-pill">
+          <div class="pin">📍</div>
+          <div class="txt"><b>Bloco B · Sala 204</b><span>Localização detectada automaticamente</span></div>
+        </div>
+        <div class="spacer"></div>
+        <button class="cta" onclick="goTo(2)">Simular escaneamento →</button>
+      </div>
+
+      <!-- SCREEN 2: CATEGORY -->
+      <div class="panel" id="p2">
+        <div class="back-row" onclick="goTo(1)"><div class="arrow">←</div><span>VOLTAR</span></div>
+        <div class="appbar">
+          <div class="label">Passo 2 de 3</div>
+          <h2>Qual é o problema?</h2>
+        </div>
+        <div class="cat-grid">
+          <button class="cat-btn" data-cat="Limpeza" onclick="selectCat(this,'Limpeza')"><span class="icon">🧹</span><span class="name">Limpeza / pragas</span></button>
+          <button class="cat-btn" data-cat="Estrutura" onclick="selectCat(this,'Estrutura')"><span class="icon">🚿</span><span class="name">Estrutura / vazamento</span></button>
+          <button class="cat-btn" data-cat="Manutenção" onclick="selectCat(this,'Manutenção')"><span class="icon">🛠️</span><span class="name">Manutenção geral</span></button>
+          <button class="cat-btn" data-cat="Outro" onclick="selectCat(this,'Outro')"><span class="icon">✏️</span><span class="name">Outro</span></button>
+        </div>
+        <div class="spacer"></div>
+        <button class="cta" id="catNext" disabled onclick="goTo(3)">Continuar →</button>
+      </div>
+
+      <!-- SCREEN 3: DESCRIPTION -->
+      <div class="panel" id="p3">
+        <div class="back-row" onclick="goTo(2)"><div class="arrow">←</div><span>VOLTAR</span></div>
+        <div class="appbar">
+          <div class="label">Passo 3 de 3</div>
+          <h2>Descreva o problema</h2>
+        </div>
+        <div class="field-label">Categoria selecionada</div>
+        <div class="location-pill" style="margin-top:0;">
+          <div class="pin" id="catIconBox">🧹</div>
+          <div class="txt"><b id="catLabel">—</b><span>Bloco B · Sala 204</span></div>
+        </div>
+        <div class="field-label">O que está acontecendo</div>
+        <textarea id="desc" placeholder="Ex: cano estourado perto da janela, formando poça no chão..."></textarea>
+        <div class="field-label">Foto (opcional)</div>
+        <div class="photo-slot" id="photoSlot" onclick="attachPhoto()">📷 Toque para anexar uma foto</div>
+        <div class="spacer"></div>
+        <button class="cta" onclick="submitReport()">Enviar chamado</button>
+      </div>
+
+      <!-- SCREEN 4: CONFIRMATION -->
+      <div class="panel" id="p4">
+        <div class="appbar">
+          <div class="label">Chamado registrado</div>
+        </div>
+        <div class="ticket">
+          <div class="ticket-top">
+            <div class="check">✓</div>
+            <h3>Chamado enviado!</h3>
+            <p>O setor responsável foi notificado</p>
+          </div>
+          <div class="perforation"></div>
+          <div class="ticket-body">
+            <div class="ticket-row"><span class="k">Protocolo</span><span class="v protocol" id="protoNum">#UJ-0000</span></div>
+            <div class="ticket-row"><span class="k">Categoria</span><span class="v" id="sumCat">—</span></div>
+            <div class="ticket-row"><span class="k">Local</span><span class="v">Bloco B · Sala 204</span></div>
+            <div class="ticket-row"><span class="k">Foto anexada</span><span class="v" id="sumPhoto">Não</span></div>
+            <div class="eta-badge">⏱ Previsão de retorno em até <b>48h</b> · você pode acompanhar o status pelo protocolo</div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <button class="cta ghost" onclick="resetProto()">Simular novo chamado</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let currentCat = null;
+  let photoAttached = false;
+
+  function goTo(n){
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('p'+n).classList.add('active');
+
+    document.querySelectorAll('.step-row').forEach(row => {
+      const step = parseInt(row.dataset.step);
+      row.classList.remove('active','done');
+      if(step < n) row.classList.add('done');
+      if(step === n) row.classList.add('active');
+    });
+  }
+
+  const catIcons = {"Limpeza":"🧹","Estrutura":"🚿","Manutenção":"🛠️","Outro":"✏️"};
+
+  function selectCat(el, cat){
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    currentCat = cat;
+    document.getElementById('catNext').disabled = false;
+    document.getElementById('catLabel').textContent = cat;
+    document.getElementById('catIconBox').textContent = catIcons[cat];
+  }
+
+  function attachPhoto(){
+    photoAttached = true;
+    const slot = document.getElementById('photoSlot');
+    slot.textContent = "✓ foto_problema.jpg anexada";
+    slot.classList.add('filled');
+  }
+
+  function submitReport(){
+    const proto = "#UJ-" + Math.floor(1000 + Math.random()*8999);
+    document.getElementById('protoNum').textContent = proto;
+    document.getElementById('sumCat').textContent = currentCat || "—";
+    document.getElementById('sumPhoto').textContent = photoAttached ? "Sim" : "Não";
+    goTo(4);
+  }
+
+  function resetProto(){
+    currentCat = null;
+    photoAttached = false;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('catNext').disabled = true;
+    document.getElementById('desc').value = "";
+    const slot = document.getElementById('photoSlot');
+    slot.textContent = "📷 Toque para anexar uma foto";
+    slot.classList.remove('filled');
+    goTo(1);
+  }
+
+  // fake live clock
+  function tick(){
+    const d = new Date();
+    const h = String(d.getHours()).padStart(2,'0');
+    const m = String(d.getMinutes()).padStart(2,'0');
+    document.getElementById('clock').textContent = h+':'+m;
+  }
+  tick(); setInterval(tick, 30000);
+</script>
+
+</body>
+</html>
