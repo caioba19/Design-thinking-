@@ -194,6 +194,49 @@
     margin:10px 0 0;
     line-height:1.5;
   }
+  .building-toggle{
+    display:flex;
+    gap:8px;
+    margin-top:6px;
+  }
+  .building-btn{
+    flex:1;
+    background:var(--white);
+    border:1.5px solid #DCE3F5;
+    border-radius:12px;
+    padding:11px 8px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--muted);
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .building-btn.selected{
+    background:var(--navy);
+    border-color:var(--navy);
+    color:var(--white);
+  }
+  .sala-input{
+    width:100%;
+    border:1.5px solid #DCE3F5;
+    border-radius:14px;
+    padding:12px 14px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    background:var(--white);
+    margin-top:6px;
+    color:var(--ink);
+  }
+  .sala-input:focus{outline:none;border-color:var(--accent);}
+  .sala-input.error{border-color:#E0554A;}
+  .sala-hint{
+    font-size:10.5px;
+    color:var(--muted);
+    margin-top:5px;
+  }
+  .sala-hint.error{color:#E0554A;}
+
   .location-pill{
     margin-top:14px;
     background:var(--white);
@@ -254,6 +297,24 @@
     margin-top:6px;
   }
   textarea:focus{outline:none;border-color:var(--accent);}
+  .course-select{
+    width:100%;
+    border:1.5px solid #DCE3F5;
+    border-radius:14px;
+    padding:12px 14px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:12.5px;
+    background:var(--white);
+    margin-top:6px;
+    color:var(--ink);
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0l5 6 5-6z" fill="%236B7280"/></svg>');
+    background-repeat:no-repeat;
+    background-position:right 14px center;
+  }
+  .course-select:focus{outline:none;border-color:var(--accent);}
+  .course-select:invalid{color:var(--muted);}
   .photo-slot{
     margin-top:12px;
     border:1.5px dashed #C4CEE8;
@@ -447,14 +508,18 @@
             M2 24h3v3h-3z M24 24h3v3h-3z
             M9 24h1v1h-1z M16 24h2v1h-2z M19 24h1v2h-1z M9 26h2v1h-2z M12 26h2v1h-2z M15 26h1v2h-1z M17 26h1v2h-1z"/>
           </svg>
-          <p>QR Code fixado na entrada da sala 204 — Bloco B</p>
+          <p>QR Code fixado na entrada de cada sala — selecione onde ele estaria para simular</p>
         </div>
-        <div class="location-pill">
-          <div class="pin">📍</div>
-          <div class="txt"><b>Bloco B · Sala 204</b><span>Localização detectada automaticamente</span></div>
+        <div class="field-label">Prédio</div>
+        <div class="building-toggle">
+          <button type="button" class="building-btn selected" id="predio1Btn" onclick="selectPredio(1)">Prédio 1</button>
+          <button type="button" class="building-btn" id="predio2Btn" onclick="selectPredio(2)">Prédio 2</button>
         </div>
+        <div class="field-label">Número da sala</div>
+        <input type="number" id="salaInput" class="sala-input" placeholder="Ex: 204" min="1" max="820" oninput="validateSala()">
+        <div class="sala-hint" id="salaHint">Prédio 1: salas de 1 a 820</div>
         <div class="spacer"></div>
-        <button class="cta" onclick="goTo(2)">Simular escaneamento →</button>
+        <button class="cta" id="scanBtn" onclick="goTo(2)" disabled>Simular escaneamento →</button>
       </div>
 
       <!-- SCREEN 2: CATEGORY -->
@@ -484,10 +549,46 @@
         <div class="field-label">Categoria selecionada</div>
         <div class="location-pill" style="margin-top:0;">
           <div class="pin" id="catIconBox">🧹</div>
-          <div class="txt"><b id="catLabel">—</b><span>Bloco B · Sala 204</span></div>
+          <div class="txt"><b id="catLabel">—</b><span id="locLabelP3">—</span></div>
         </div>
         <div class="field-label">O que está acontecendo</div>
         <textarea id="desc" placeholder="Ex: cano estourado perto da janela, formando poça no chão..."></textarea>
+        <div class="field-label">Seu curso</div>
+        <select id="curso" class="course-select">
+          <option value="" disabled selected>Selecione seu curso</option>
+          <option>Administração</option>
+          <option>Análise e Desenvolvimento de Sistemas (ADS)</option>
+          <option>Arquitetura e Urbanismo</option>
+          <option>Biomedicina</option>
+          <option>Ciência da Computação</option>
+          <option>Ciências Biológicas</option>
+          <option>Ciências Contábeis</option>
+          <option>Cinema e Audiovisual</option>
+          <option>Design de Automação</option>
+          <option>Design de Interiores</option>
+          <option>Design de Moda</option>
+          <option>Design Gráfico</option>
+          <option>Direito</option>
+          <option>Educação Física</option>
+          <option>Enfermagem</option>
+          <option>Engenharia Civil</option>
+          <option>Engenharia da Computação</option>
+          <option>Engenharia de Produção</option>
+          <option>Fisioterapia</option>
+          <option>Fonoaudiologia</option>
+          <option>História (Licenciatura)</option>
+          <option>Jornalismo</option>
+          <option>Medicina</option>
+          <option>Medicina Veterinária</option>
+          <option>Nutrição</option>
+          <option>Odontologia</option>
+          <option>Pedagogia (Licenciatura)</option>
+          <option>Psicologia</option>
+          <option>Publicidade e Propaganda</option>
+          <option>Relações Internacionais</option>
+          <option>Sistemas de Informação</option>
+          <option>Outro</option>
+        </select>
         <div class="field-label">Foto (opcional)</div>
         <div class="photo-slot" id="photoSlot" onclick="attachPhoto()">📷 Toque para anexar uma foto</div>
         <div class="spacer"></div>
@@ -509,7 +610,8 @@
           <div class="ticket-body">
             <div class="ticket-row"><span class="k">Protocolo</span><span class="v protocol" id="protoNum">#UJ-0000</span></div>
             <div class="ticket-row"><span class="k">Categoria</span><span class="v" id="sumCat">—</span></div>
-            <div class="ticket-row"><span class="k">Local</span><span class="v">Bloco B · Sala 204</span></div>
+            <div class="ticket-row"><span class="k">Curso</span><span class="v" id="sumCurso">—</span></div>
+            <div class="ticket-row"><span class="k">Local</span><span class="v" id="sumLocal">—</span></div>
             <div class="ticket-row"><span class="k">Foto anexada</span><span class="v" id="sumPhoto">Não</span></div>
             <div class="eta-badge">⏱ Previsão de retorno em até <b>48h</b> · você pode acompanhar o status pelo protocolo</div>
           </div>
@@ -526,6 +628,50 @@
 <script>
   let currentCat = null;
   let photoAttached = false;
+  let currentPredio = 1;
+  const salaRanges = { 1: [1, 820], 2: [821, 5031] };
+
+  function selectPredio(n){
+    currentPredio = n;
+    document.getElementById('predio1Btn').classList.toggle('selected', n === 1);
+    document.getElementById('predio2Btn').classList.toggle('selected', n === 2);
+    const [min, max] = salaRanges[n];
+    const input = document.getElementById('salaInput');
+    input.min = min; input.max = max;
+    input.placeholder = n === 1 ? "Ex: 204" : "Ex: 3012";
+    document.getElementById('salaHint').textContent = `Prédio ${n}: salas de ${min} a ${max}`;
+    document.getElementById('salaHint').classList.remove('error');
+    input.classList.remove('error');
+    validateSala();
+  }
+
+  function validateSala(){
+    const input = document.getElementById('salaInput');
+    const hint = document.getElementById('salaHint');
+    const [min, max] = salaRanges[currentPredio];
+    const val = parseInt(input.value, 10);
+    const valid = val >= min && val <= max;
+    document.getElementById('scanBtn').disabled = !valid;
+    if(input.value === "" ){
+      input.classList.remove('error');
+      hint.classList.remove('error');
+      hint.textContent = `Prédio ${currentPredio}: salas de ${min} a ${max}`;
+    } else if(!valid){
+      input.classList.add('error');
+      hint.classList.add('error');
+      hint.textContent = `Fora da faixa do Prédio ${currentPredio} (${min}–${max})`;
+    } else {
+      input.classList.remove('error');
+      hint.classList.remove('error');
+      hint.textContent = `Prédio ${currentPredio}: salas de ${min} a ${max}`;
+    }
+    return valid;
+  }
+
+  function currentLocalLabel(){
+    const sala = document.getElementById('salaInput').value || "—";
+    return `Prédio ${currentPredio} · Sala ${sala}`;
+  }
 
   function goTo(n){
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -537,6 +683,10 @@
       if(step < n) row.classList.add('done');
       if(step === n) row.classList.add('active');
     });
+
+    if(n === 3){
+      document.getElementById('locLabelP3').textContent = currentLocalLabel();
+    }
   }
 
   const catIcons = {"Limpeza":"🧹","Estrutura":"🚿","Manutenção":"🛠️","Outro":"✏️"};
@@ -559,9 +709,12 @@
 
   function submitReport(){
     const proto = "#UJ-" + Math.floor(1000 + Math.random()*8999);
+    const cursoVal = document.getElementById('curso').value;
     document.getElementById('protoNum').textContent = proto;
     document.getElementById('sumCat').textContent = currentCat || "—";
+    document.getElementById('sumCurso').textContent = cursoVal || "Não informado";
     document.getElementById('sumPhoto').textContent = photoAttached ? "Sim" : "Não";
+    document.getElementById('sumLocal').textContent = currentLocalLabel();
     goTo(4);
   }
 
@@ -571,6 +724,9 @@
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
     document.getElementById('catNext').disabled = true;
     document.getElementById('desc').value = "";
+    document.getElementById('curso').selectedIndex = 0;
+    document.getElementById('salaInput').value = "";
+    selectPredio(1);
     const slot = document.getElementById('photoSlot');
     slot.textContent = "📷 Toque para anexar uma foto";
     slot.classList.remove('filled');
